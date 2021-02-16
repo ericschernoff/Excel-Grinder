@@ -1,12 +1,12 @@
 {
-   "abstract" : "Import/export Excel files as simply as possible.",
+   "abstract" : "Import/export plain Excel (XLSX) files as simply as possible.",
    "author" : [
       "Eric Chernoff <eric@weaverstreet.net>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.1.11, CPAN::Meta::Converter version 2.150010",
    "license" : [
-      "unknown"
+      "mit"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -68,7 +68,8 @@
    "version" : "1.0",
    "x_authority" : "cpan:ECHERNOF",
    "x_contributors" : [
-      "Eric Chernoff <eric@pepper.weaverstreet.net>"
+      "Eric Chernoff <eric@pepper.weaverstreet.net>",
+      "Eric Chernoff <ericschernoff@gmail.com>"
    ],
    "x_serialization_backend" : "JSON::PP version 4.02",
    "x_static_install" : 1
