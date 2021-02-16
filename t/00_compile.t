@@ -1,5 +1,5 @@
 use strict;
-use Test::More 0.98;
+use Test::More 0.98 tests => 4;
 
 use_ok $_ for qw(
     Excel::Grinder
@@ -19,7 +19,7 @@ my $full_file_path = $xlsx->write_excel(
 			['Name','Main Trait','Age Type'],
 			['Ginger','Wonderful','Old'],
 			['Pepper','Loving','Passed'],
-			['Polly','Fun','Young']
+			['Polly','Fun','Young'],
 			['Daisy','Crazy','Puppy']
 		],
 		[
@@ -47,7 +47,7 @@ if ($$test_data[0][1][1] eq 'Wonderful' && $$test_data[1][2][2] eq 'Young') {
 ok($data_verified, 'Read data back in from Excel');
 
 unlink $full_file_path;
-rmdir temp_dir;
+rmdir $temp_dir;
 
 done_testing;
 

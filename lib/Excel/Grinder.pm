@@ -53,7 +53,7 @@ sub write_excel {
 
 	# place into default_directory unless they specified a directory
 
-	$args{filename} = $self->default_directory.'/'.$args{filename} if $args{filename} !~ /\//;
+	$args{filename} = $self->{default_directory}.'/'.$args{filename} if $args{filename} !~ /\//;
 	$args{filename} .= '.xlsx' if $args{filename} !~ /\.xlsx$/;
 
 	# start our workbook
@@ -152,25 +152,46 @@ sub read_excel {
 
 __END__
 
-=head1 Excel::Grinder
+=head1 NAME
 
-This allows Majestica to export data to Excel files, as well as to convert Excel files into 
-data structures.  That second function is to allow for some nasty batch-update tools.  
-Please note that for both of these, we are only supporting the 'modern' XLSX format.
+Excel::Grinder - Import/export Excel files as simply as possible.
 
-Start it up like so, passing in a valid UtilityBelt object:
+=head1 DESCRIPTION / PURPOSE
 
-	$xlsx = Excel::Grinder->new('/default/directory/for/your/excel/files');
+This module is meant to allow you to read XLSX spreadsheets into Perl data
+and to write XLSX spreadsheets from Perl data as simply as possible. 
+The use cases are (1) when you need to export data from your program for 
+non-programmers to enjoy in their beloved Excel and (2) when you need to allow
+for batch data operations via user-provided Excel.
 
-=head2 write_excel()
+There are so many awesome things you can do with Excel (formatting, formulas, 
+pivot tables, etc.) but this module does none of that.  It is the basic read-it-in 
+and write-it-out -- which might just fit the bill.
 
-To write out an XLSX file, you will prepare a nice three-level arrayref.
-The actual data is at the third level; the first two are organizational 
-to represent worksheets and rows.
+This module will read an Excel (XLSX) file into a three-level arrayref.  The first
+level is the worksheets, second level is the rows, and third level is the cells, such that:
 
-Here is a nice example:
+	$$my_data[4][2][10] --> Worksheet 5, Row 3, Column 11 (aka as Column K)
+	
+Form a three-level arrayref to represent worksheets/rows/cells in this way, and you can create
+a plain Excel XLSX file.  No formatting or formulas.  Ready for Tableau or just to confuse
+your friendly neighborhood front-line manager.
 
-	$full_file_path = $xlsx->write_excel(
+I put this together because I was offended at how difficult it is just to create an Excel
+file in certain non-Perl environments, and since Excel is just a part of life for so many of us,
+it really should be dead-simple.
+
+To pursue additional Excel features, please see the excellent L<Excel::Writer::XLSX> and 
+L<Spreadsheet::XLSX> modules, of which this module is just a simple abstraction.
+
+=head1 SYNOPSIS
+
+	# create the object to read/write excel files
+	my $xlsx = Excel::Grinder->new('/opt/data/excel_files'); 
+	# directory can be anywhere that is writable; leave blank for /tmp/excel_grinder
+
+	# would create a two-sheet Excel spreadsheet at /opt/data/excel_files/our_family.xlsx
+	my $full_file_path = $xlsx->write_excel(
 		'filename' => 'our_family.xlsx',
 		'headings_in_data' => 1,
 		'worksheet_names' => ['Dogs','People'],
@@ -179,7 +200,7 @@ Here is a nice example:
 				['Name','Main Trait','Age Type'],
 				['Ginger','Wonderful','Old'],
 				['Pepper','Loving','Passed'],
-				['Polly','Fun','Young']
+				['Polly','Fun','Young'],
 				['Daisy','Crazy','Puppy']
 			],
 			[
@@ -189,30 +210,71 @@ Here is a nice example:
 				['Eric','Fat','Old']
 			]
 		],
-	);
-
-That will create a file at /opt/majestica/tmp/DATABASE_NAME/ginger.xlsx .  Please use
-your file_manager object if you need to save it to a proper spot.  The
-$full_file_path variable is now your full path to the file on the disk.
-
-In normal use, you'd probably prepare the arrayref beforehand and then
-call like so:
-
-	$xlsx->write_excel(
-		'filename' => 'ginger.xlsx',
-		'the_data' => \@my_data,
+	);	
+	
+	# if you had that three-level array in $our_family_data:
+	$full_file_path = $xlsx->write_excel(
+		'filename' => 'our_family.xlsx',
 		'headings_in_data' => 1,
-		'worksheet_names' => ['Dogs','People'],
+		'worksheet_names' => ['Dogs','People'],	
+		'the_data' => $our_family_data
 	);
+	
+	# to read that spreadsheet back into an three-level arrayref that is just like
+	# what we feed in to write_excel() above:
+	
+	my $family_data = $xlsx->read_excel('our_family.xlsx');
 
-The 'headings_in_data' arg tells use to make each worksheet's first row
-all caps to indicate those are the headings.  Fancy.  We are not exactly
-stretching the use of Excel::Writer::XLSX here.
+	# modify or add to $family_data, and overwrite our_family.xlsx or create another XLSX file.
 
-The 'worksheet_names' argument is the arrayref to the names to put on the
-nice tabs for the worksheets.  Both 'worksheet_names' and 'headings_in_data'
-are optional.
+=head1 METHODS
 
+=head2 new()
+
+Creates a new object to use this module.  Accepts a 'default directory' path for where
+to save or load the Excel files:
+
+	$xlsx = Excel::Grinder->new('/home/ginger/excel_files');
+	
+If you leave out that directory argument, the default is /tmp/excel_grinder .
+
+=head2 write_excel()
+
+Take a properly-formed three-level array and create an XLSX file.  The simplest
+way to invoke.
+
+	$full_file_path = $xlsx->write_excel(
+		'filename' => 'some_filename.xlsx',
+		'the_data' => $some_data
+	);
+	
+The return value is the full location (file path) of the new file.
+
+'Properly-formed' means the data itself is really at the third level,
+while the first two just organize it into worksheets and rows:
+
+	$websites = [
+		[
+			[ 'Facebook','https://www.facebook.com', ],
+			[ 'LinkedIn','https://www.linkedin.com', ],
+			[ 'Google','https://www.google.com', ],
+		],
+		[
+			[ 'CPAN','https://metacpan.org/', ],
+			[ 'Perl.Org','https://www.perl.org/', ]
+		],
+	];
+	
+This represents an Excel workbook with two worksheets.  The first one has three two-column rows,
+and the second one has two two-column rows.  Often, a structure like this would be defined 
+during a loop of some kind, or perhaps feed from the results of DBI's fetchall_arrayref().
+
+The 'headings_in_data' arg tells use to make each worksheet's first row all caps to 
+indicate those are the headings.  Fancy.  We are not exactly stretching the use of 
+Excel::Writer::XLSX here.
+
+The 'worksheet_names' argument is the arrayref to the names to put on the nice tabs 
+for the worksheets.  Both 'worksheet_names' and 'headings_in_data' are optional.
 
 =head2 read_excel()
 
@@ -220,6 +282,21 @@ This does the exact opposite of write_excel() in that it reads in an XLSX
 file and returns the arrayref in the exact same format as what write_excel()
 receives.  All it needs is the absolute filepath for an XLSX file:
 
-	$the_data = $xlsx->read_excel('/opt/majestica/tmp/DATABASE_NAME/ginger.xlsx');
+	$the_data = $xlsx->read_excel('/opt/data/excel_files/DATABASE_NAME/ginger.xlsx');
 
-@$the_data will look like the structure in the example above.  Try it out ;)
+	# or you can just provide the filename, so long as it is in the default
+	# directory path provided in new()
+
+@$the_data will look like the structure in the examples above.  Try it out ;)
+
+=head1 SEE ALSO
+
+L<Excel::Writer::XLSX> 
+ 
+L<Spreadsheet::XLSX>
+
+=head1 AUTHOR
+
+Eric Chernoff <eric@weaverstreet.net>
+
+Please send me a note with any bugs or suggestions.

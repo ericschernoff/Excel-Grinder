@@ -1,12 +1,12 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "Import/export Excel files as simply as possible.",
    "author" : [
-      "Eric Chernoff <eric@pepper.weaverstreet.net>"
+      "Eric Chernoff <eric@weaverstreet.net>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.1.11, CPAN::Meta::Converter version 2.150010",
    "license" : [
-      "perl_5"
+      "unknown"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -42,7 +42,9 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "5.008001"
+            "Excel::Writer::XLSX" : "1.05",
+            "Spreadsheet::XLSX" : "0.15",
+            "perl" : "5.024001"
          }
       },
       "test" : {
@@ -52,8 +54,22 @@
       }
    },
    "release_status" : "unstable",
-   "version" : "0.01",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/ericschernoff/Excel-Grinder/issues"
+      },
+      "homepage" : "https://github.com/ericschernoff/Excel-Grinder",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/ericschernoff/Excel-Grinder.git",
+         "web" : "https://github.com/ericschernoff/Excel-Grinder"
+      }
+   },
+   "version" : "1.0",
    "x_authority" : "cpan:ECHERNOF",
+   "x_contributors" : [
+      "Eric Chernoff <eric@pepper.weaverstreet.net>"
+   ],
    "x_serialization_backend" : "JSON::PP version 4.02",
    "x_static_install" : 1
 }
