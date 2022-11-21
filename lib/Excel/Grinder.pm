@@ -34,6 +34,7 @@ sub new {
 	# become!
 	my $self = bless {
 		'default_directory' => $default_directory,
+        'path_separator' => $path_separator,
 	}, $class;
 	
 	return $self;
