@@ -15,8 +15,15 @@ use Spreadsheet::XLSX;
 sub new {
 	my ($class, $default_directory) = @_;
 	
+    my $path_separator = '/';
+    my $temp_directory = '/tmp';
+
+    if( $^O eq "MSWin32" ){
+        $path_separator = '\\';
+        $temp_directory = $ENV{'temp'};
+    }
 	# default the default directory to /tmp/excel_grinder
-	$default_directory ||= '/tmp/excel_grinder';
+	$default_directory ||= $temp_directory . $path_separator . 'excel_grinder';
 	
 	# make sure that directory exists
 	mkdir $default_directory if !(-d $default_directory);
@@ -27,6 +34,7 @@ sub new {
 	# become!
 	my $self = bless {
 		'default_directory' => $default_directory,
+		'path_separator' => $path_separator,
 	}, $class;
 	
 	return $self;
@@ -53,7 +61,7 @@ sub write_excel {
 
 	# place into default_directory unless they specified a directory
 
-	$args{filename} = $self->{default_directory}.'/'.$args{filename} if $args{filename} !~ /\//;
+	$args{filename} = $self->{default_directory}.$self->{path_separator}.$args{filename} if $args{filename} !~ m#$self->{path_separator}#;
 	$args{filename} .= '.xlsx' if $args{filename} !~ /\.xlsx$/;
 
 	# start our workbook
@@ -103,7 +111,7 @@ sub read_excel {
 	# if it's just a filename, look in the default directory
 	my ($self,$filename) = @_;
 
-	$filename = $self->{default_directory}.'/'.$filename if $filename !~ /\//;	
+	$filename = $self->{default_directory}.$self->{path_separator}.$filename if $filename !~ m#$self->{path_separator}#;
 	$filename .= '.xlsx' if $filename !~ /\.xlsx$/;
 
 	# gotta exist, after all that
