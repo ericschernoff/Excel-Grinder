@@ -15,13 +15,13 @@ use Spreadsheet::XLSX;
 sub new {
 	my ($class, $default_directory) = @_;
 	
-    my $path_separator = '/';
-    my $temp_directory = '/tmp';
+	my $path_separator = '/';
+	my $temp_directory = '/tmp';
 
-    if( $^O eq "MSWin32" ){
-        $path_separator = '\\';
-        $temp_directory = $ENV{'temp'};
-    }
+	if( $^O eq "MSWin32" ){
+		$path_separator = '\\';
+		$temp_directory = $ENV{'temp'};
+	}
 	# default the default directory to /tmp/excel_grinder
 	$default_directory ||= $temp_directory . $path_separator . 'excel_grinder';
 	
@@ -52,6 +52,9 @@ sub write_excel {
 
 	my ($tmp_dir, $item, $col, @bits, $workbook, $worksheet_data, $worksheet, $n, $row_array, $row_upper, $worksheet_name);
 
+	# ensure path separator is escaped properly 
+	my $separator_regex = qq(\\$self->{path_separator});
+
 	# fail without a filename
 	croak 'Error: Filename required for write_excel()' if !$args{filename};
 
@@ -61,7 +64,7 @@ sub write_excel {
 
 	# place into default_directory unless they specified a directory
 
-	$args{filename} = $self->{default_directory}.$self->{path_separator}.$args{filename} if $args{filename} !~ m#$self->{path_separator}#;
+	$args{filename} = $self->{default_directory}.$self->{path_separator}.$args{filename} if $args{filename} !~ m#$separator_regex#;
 	$args{filename} .= '.xlsx' if $args{filename} !~ /\.xlsx$/;
 
 	# start our workbook
@@ -111,7 +114,10 @@ sub read_excel {
 	# if it's just a filename, look in the default directory
 	my ($self,$filename) = @_;
 
-	$filename = $self->{default_directory}.$self->{path_separator}.$filename if $filename !~ m#$self->{path_separator}#;
+	# ensure path separator is escaped properly 
+	my $separator_regex = qq(\\$self->{path_separator});
+
+	$filename = $self->{default_directory}.$self->{path_separator}.$filename if $filename !~ m#$separator_regex#;
 	$filename .= '.xlsx' if $filename !~ /\.xlsx$/;
 
 	# gotta exist, after all that
